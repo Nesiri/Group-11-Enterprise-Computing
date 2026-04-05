@@ -11,10 +11,12 @@ pipeline {
                  }
             }
             steps {
-                sh '''
-                npm install
-                npm test
-                '''
+                dir('react-cicd'){ // Change to the react-cicd directory
+                  sh '''
+                  npm install
+                  npm test
+                 '''
+                }
             }
         }
 
@@ -26,10 +28,12 @@ pipeline {
                  }
             }
             steps {
-                sh '''
-                npm install
-                npm run build
-                '''
+                dir('react-cicd') {
+                  sh '''
+                    npm install
+                    npm run build
+                  '''
+               }
             }
         }
     }
