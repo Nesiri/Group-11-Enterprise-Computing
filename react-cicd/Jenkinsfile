@@ -1,0 +1,48 @@
+pipeline {
+    agent any
+
+    stages {
+
+        stage('Test') {
+            agent {
+                docker {
+                   image 'node:20-alpine'
+                   reuseNode true
+                 }
+            }
+            steps {
+                sh '''
+                npm install
+                npm test
+                '''
+            }
+        }
+
+        stage('Build') {
+            agent {
+                docker {
+                    image 'node:20-alpine'
+                    reuseNode true
+                 }
+            }
+            steps {
+                sh '''
+                npm install
+                npm run build
+                '''
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Build and tests succeeded!'
+        }
+        failure {
+            echo 'Build or tests failed.'
+        }
+        always {
+            echo 'Pipeline finished.'
+        }
+    }
+}
