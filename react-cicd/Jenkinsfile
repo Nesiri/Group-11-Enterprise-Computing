@@ -36,6 +36,19 @@ pipeline {
                }
             }
         }
+
+        stage('Build My Docker Image') {
+            steps {
+                dir('react-cicd') {
+                    script {
+                        sh '''
+                            docker build -t react-cicd:${BUILD_NUMBER} .
+                            docker tag react-cicd:${BUILD_NUMBER} react-cicd:latest
+                        '''
+                    }
+                }
+            }
+        }
     }
 
     post {
