@@ -68,8 +68,7 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'ProjectUserKey', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
                     sh '''
-                        apk add --no-cache python3 py3-pip
-                        pip3 install awscli
+                        apk add --no-cache aws-cli
 
                         aws --version
                         docker --version
