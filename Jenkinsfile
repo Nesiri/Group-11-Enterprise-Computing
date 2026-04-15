@@ -1,5 +1,11 @@
 pipeline {
     agent any
+    
+    environment{
+        AWS_DOCKER_REGISTRY = '871749382674.dkr.ecr.us-east-2.amazonaws.com'
+        APP_NAME = 'react-cicd'
+        AWS_DEFAULT_REGION = 'us-east-2'
+    }
 
     stages {
 
