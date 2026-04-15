@@ -40,8 +40,16 @@ pipeline {
         }
 
         stage('Build My Docker Image') {
+            agent {
+                docker {
+                    image 'docker:27-cli'
+                    reuseNode true
+                    args '-u root -v /var/run/docker.sock:/var/run/docker.sock'
+                }
+            }
             steps {
                 sh '''
+                    docker version
                     docker build -t ${APP_NAME}:${BUILD_NUMBER} .
                     docker tag ${APP_NAME}:${BUILD_NUMBER} ${AWS_DOCKER_REGISTRY}/${APP_NAME}:${BUILD_NUMBER}
                     docker tag ${APP_NAME}:${BUILD_NUMBER} ${AWS_DOCKER_REGISTRY}/${APP_NAME}:latest
@@ -52,15 +60,22 @@ pipeline {
         stage('Push Docker Image to ECR') {
             agent {
                 docker {
-                    image 'amazon/aws-cli'
+                    image 'docker:27-cli'
                     reuseNode true
-                    args '-u root --entrypoint=""'
+                    args '-u root -v /var/run/docker.sock:/var/run/docker.sock'
                 }
             }
             steps {
                 withCredentials([usernamePassword(credentialsId: 'ProjectUserKey', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
                     sh '''
+                        apk add --no-cache python3 py3-pip
+                        pip3 install awscli
+
+                        aws --version
+                        docker --version
+
                         aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin ${AWS_DOCKER_REGISTRY}
+
                         docker push ${AWS_DOCKER_REGISTRY}/${APP_NAME}:${BUILD_NUMBER}
                         docker push ${AWS_DOCKER_REGISTRY}/${APP_NAME}:latest
                     '''
